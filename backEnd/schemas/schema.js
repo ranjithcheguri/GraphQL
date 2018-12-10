@@ -88,9 +88,17 @@ const Query = new GraphQLObjectType({
     fields: {
         traveler: {
             type: TravelerType,
-            args: { email: { type: GraphQLString } },
+            args: {
+                email: { type: GraphQLString }
+            },
             resolve(parent, args) {
                 return traveler1.findOne()
+            }
+        },
+        travelersList: {
+            type: new GraphQLList(TravelerType),
+            resolve(parent, args) {
+                return traveler1.find()
             }
         },
         owner: {
@@ -100,11 +108,48 @@ const Query = new GraphQLObjectType({
                 //
             }
         },
+        ownersList: {
+            type: new GraphQLList(OwnerType),
+            resolve(parent, args) {
+                return owner1.find()
+            }
+        },
         profile: {
             type: ProfileType,
             args: { email: { type: GraphQLString } },
             resolve(parent, args) {
                 //
+            }
+        },
+        property: {
+            type: PropertyType,
+            args: { ownername: { type: GraphQLString } },
+            resolve(parent, args) {
+                return property1.findOne()
+            }
+        },
+        propertiesList: {
+            type: new GraphQLList(PropertyType),
+            resolve(parent, args) {
+                return property1.find()
+            }
+        },
+        PropertiesBookedBy: {
+            type: new GraphQLList(PropertyType),
+            args: {
+                bookedUser: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+                return property1.find({ bookedUser: args.bookedUser })
+            }
+        },
+        PropertiesPostedBy: {
+            type: new GraphQLList(PropertyType),
+            args: {
+                ownername: { type: GraphQLString }
+            },
+            resolve(parent, args) {
+                return property1.find({ ownername: args.ownername })
             }
         }
     }

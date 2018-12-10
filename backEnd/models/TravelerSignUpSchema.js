@@ -8,5 +8,4 @@ var TravelerSignUpSchema = new Schema({
     password: String
 })
 
-//exports.schema=schema;
 module.exports = mongoose.model('travelerSignUp', TravelerSignUpSchema);
