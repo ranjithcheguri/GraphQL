@@ -4,7 +4,7 @@ const traveler1 = require('../models/TravelerSignUpSchema');
 const owner1 = require('../models/OwnerSignupSchema');
 const profile1 = require('../models/profileDataSchema');
 const property1 = require('../models/propertySchema');
-
+var bcrypt = require('bcryptjs');
 
 const {
     GraphQLObjectType,
@@ -41,6 +41,7 @@ const PropertyType = new GraphQLObjectType({
         cleaningfee: { type: GraphQLInt },
         ownername: { type: GraphQLString },
         bookedUser: { type: GraphQLString },
+        status: { type: GraphQLInt }
     })
 })
 
@@ -58,7 +59,8 @@ const ProfileType = new GraphQLObjectType({
         hometown: { type: GraphQLString },
         laguages: { type: GraphQLString },
         phoneNumber: { type: GraphQLString },
-        school: { type: GraphQLString }
+        school: { type: GraphQLString },
+        status: { type: GraphQLInt }
     })
 })
 
@@ -68,7 +70,8 @@ const TravelerType = new GraphQLObjectType({
         firstName: { type: GraphQLString },
         lastName: { type: GraphQLString },
         email: { type: GraphQLString },
-        password: { type: GraphQLString }
+        password: { type: GraphQLString },
+        status: { type: GraphQLInt }
     })
 })
 
@@ -78,21 +81,32 @@ const OwnerType = new GraphQLObjectType({
         firstName: { type: GraphQLString },
         lastName: { type: GraphQLString },
         email: { type: GraphQLString },
-        password: { type: GraphQLString }
+        password: { type: GraphQLString },
+        status: { type: GraphQLInt }
     })
 })
 
-
+var loginResult;
 const Query = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
-        traveler: {
+        travelerLogin: {
             type: TravelerType,
             args: {
-                email: { type: GraphQLString }
+                email: { type: GraphQLString },
+                password: { type: GraphQLString }
             },
-            resolve(parent, args) {
-                return traveler1.findOne()
+            async resolve(parent, args) {
+               await traveler1.findOne({ email: args.email }, function (err, res) {
+                    if (res.password == args.password) {
+                        res.status = 200;
+                        loginResult = res;
+                    } else {
+                        res.status = 400;
+                        loginResult = res;
+                    }
+                })
+                return loginResult;
             }
         },
         travelersList: {
@@ -101,9 +115,13 @@ const Query = new GraphQLObjectType({
                 return traveler1.find()
             }
         },
-        owner: {
+        ownerLogin: {
             type: OwnerType,
-            args: { email: { type: GraphQLString } },
+            args: {
+                email: { type: GraphQLString },
+                password: { type: GraphQLString }
+
+            },
             resolve(parent, args) {
                 //
             }
@@ -168,11 +186,13 @@ const Mutation = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 //new traveler creation with imported travelerschema.
+                var salt = bcrypt.genSaltSync(10);
+                var hash = bcrypt.hashSync(args.password, salt);
                 let traveler = new traveler1({ //dont use same names
                     firstName: args.firstName,
                     lastName: args.lastName,
                     email: args.email,
-                    password: args.password
+                    password: hash
                 })
                 return traveler.save(); //after saving to db we want to return saved details instead of null so return is used.
             }
@@ -187,11 +207,13 @@ const Mutation = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 //new traveler creation with imported travelerschema.
+                var salt = bcrypt.genSaltSync(10);
+                var hash = bcrypt.hashSync(args.password, salt);
                 let owner = new owner1({
                     firstName: args.firstName,
                     lastName: args.lastName,
                     email: args.email,
-                    password: args.password
+                    password: hash
                 })
                 return owner.save(); //after saving to db we want to return saved details instead of null so return is used.
             }

@@ -7,6 +7,15 @@ import { Provider } from 'react-redux';
 import store from './store';
 /* REDUX STORE */
 
+/* GRAPHQL */
+import ApolloClient from 'apollo-boost';
+import { ApolloProvider } from 'react-apollo';
+
+const client = new ApolloClient({
+  uri: `http://localhost:3002/graphql`
+})
+/* GRAPHQL */
+
 
 class App extends Component {
   constructor(props) {
@@ -16,14 +25,15 @@ class App extends Component {
 
   render() {
     return (
-      <Provider store={store}>
-        <BrowserRouter>
-          <div>
-            <Menu />
-          </div>
-        </BrowserRouter>
-      </Provider>
-
+      <ApolloProvider client={client}>
+        <Provider store={store}>
+          <BrowserRouter>
+            <div>
+              <Menu />
+            </div>
+          </BrowserRouter>
+        </Provider>
+      </ApolloProvider>
     );
   }
 }

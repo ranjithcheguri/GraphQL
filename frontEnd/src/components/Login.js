@@ -10,37 +10,61 @@ import { submitLogin } from '../actions/loginActions';
 import { stat } from 'fs';
 /* REDUX IMPORTS END */
 
+/* GRAPHQL IMPORTS BEGIN */
+import { graphql, compose } from 'react-apollo';
+import { withApollo } from 'react-apollo';
+import { validateTravelerLogin } from '../queries/TravelerLogin';
+/* GRAPHQL IMPORTS END */
+
+
+
+var email = '';
+var password = '';
 
 class Login extends Component {
     constructor(props) {
         super(props);
         console.log("Inside Login");
         this.state = {
-            email: "",
-            password: "",
+            email: "ranjith@gmail.com",
+            password: "password",
         }
     }
 
     renderRedirect = () => {
         if (this.props.redirectVar) {
-            console.log("redirecting... email is ",this.state.email)
+            console.log("redirecting... email is ", this.state.email)
             sessionStorage.setItem('username', this.state.email);
             return <Redirect to='/' />
         }
     }
 
-    handleLogin = (e) => {
+    handleLogin = async(e) => {
         e.preventDefault();
-        let { email, password } = this.state;
-        const data= {
-            email:email,
-            password:password
-        }
-        this.props.submitLogin(email, password);
-        setTimeout(() => {
-            if (this.props.response === 400) alert('Invalid username/password');
-        }, 500);
-        this.renderRedirect();
+        // axios.defaults.withCredentials = true;
+
+        console.log(this.props);
+        this.props.client.query({
+            query: validateTravelerLogin,
+            variables: {
+                email: this.state.email,
+                password: this.state.password
+            }
+        }).then((response) => {
+            console.log(response);
+        });
+        setTimeout(()=>{console.log(this.props)},2000);
+
+        // let { email, password } = this.state;
+        // const data = {
+        //     email: email,
+        //     password: password
+        // }
+        // this.props.submitLogin(email, password);
+        // setTimeout(() => {
+        //     if (this.props.response === 400) alert('Invalid username/password');
+        // }, 500);
+        // this.renderRedirect();
     }
 
     handleChange = (e) => {
@@ -58,52 +82,60 @@ class Login extends Component {
         let { isLoginPending, isLoginSuccess, loginError } = this.props;
         //REDUX CODE //
 
-        return (
-            <div class="loginPage_bg">
-                {this.renderRedirect()}
-                <div class="container">
-                    <center>
-                        <div class="loginHeader">
-                            {/* <Alert bsStyle="warning"></Alert> */}
-                            <h2>Log in to HomeAway</h2>
-                            <p>Need an account? <a href="#"><Link to="/SignUp"><span>Sign Up</span></Link></a></p>
-                        </div>
-                        <div class="formContainer col-lg-4 col-lg-offset-4 col-md-5 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-12">
-                            <div class="formHeading">
-                                <h3>Account Login</h3>
-                            </div>
-                            <div className="message">
-                            </div>
-                            <div class="form-group">
-                                <form>
-                                    <input class="form-control form_element" onChange={this.handleChange.bind(this)} name="email" value={email} type="text" placeholder="Email address"></input>
-                                    <input class="form-control form_element" onChange={this.handleChange.bind(this)} name="password" value={password} type="password" placeholder="password"></input>
-                                    <a class="float_left" href="#">Forgot Password?</a>
-                                    <br></br>
-                                    <button onClick={this.handleLogin.bind(this)} class="form_element btn_login btn btn-lg btn-block" type="submit">Log In</button>
-                                    <div class="float_left">
-                                        <input class="form-check-input" type="checkbox"></input>
-                                        <label class="form-check-label">Keep me signed in</label>
-                                    </div>
-                                    <div class="or">
+        //GRAPHQL CODE//
+  
+        //GRAPHQL CODE//
 
-                                    </div>
-                                    <div class="social_login">
-                                        <button class="form_element btn_fb btn btn-lg btn-block" >Log in with Facebook</button>
-                                        <button class="form_element btn_google btn btn-lg btn-block">Log in with Google</button>
-                                    </div>
-                                    <div class="">
-                                        <label class="form_footer">We don't post anything without your permission.</label>
-                                    </div>
-                                </form>
+        if (false) {
+            return (<div>Data Loading....</div>)
+        } else {
+            return (
+                <div class="loginPage_bg">
+                    {this.renderRedirect()}
+                    <div class="container">
+                        <center>
+                            <div class="loginHeader">
+                                {/* <Alert bsStyle="warning"></Alert> */}
+                                <h2>Log in to HomeAway</h2>
+                                <p>Need an account? <a href="#"><Link to="/SignUp"><span>Sign Up</span></Link></a></p>
                             </div>
-                        </div>
-                    </center>
+                            <div class="formContainer col-lg-4 col-lg-offset-4 col-md-5 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-12">
+                                <div class="formHeading">
+                                    <h3>Account Login</h3>
+                                </div>
+                                <div className="message">
+                                </div>
+                                <div class="form-group">
+                                    <form>
+                                        <input class="form-control form_element" onChange={this.handleChange.bind(this)} name="email" value={email} type="text" placeholder="Email address"></input>
+                                        <input class="form-control form_element" onChange={this.handleChange.bind(this)} name="password" value={password} type="password" placeholder="password"></input>
+                                        <a class="float_left" href="#">Forgot Password?</a>
+                                        <br></br>
+                                        <button onClick={this.handleLogin.bind(this)} class="form_element btn_login btn btn-lg btn-block" type="submit">Log In</button>
+                                        <div class="float_left">
+                                            <input class="form-check-input" type="checkbox"></input>
+                                            <label class="form-check-label">Keep me signed in</label>
+                                        </div>
+                                        <div class="or">
+
+                                        </div>
+                                        <div class="social_login">
+                                            <button class="form_element btn_fb btn btn-lg btn-block" >Log in with Facebook</button>
+                                            <button class="form_element btn_google btn btn-lg btn-block">Log in with Google</button>
+                                        </div>
+                                        <div class="">
+                                            <label class="form_footer">We don't post anything without your permission.</label>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </center>
+                    </div>
+                    <Footer />
                 </div>
-                <Footer />
-            </div>
 
-        );
+            );
+        }
     }
 
 }
@@ -115,6 +147,11 @@ const mapStateToProps = (state) => ({
     response: state.loginState.response
 })
 
-export default connect(mapStateToProps, { submitLogin })(Login);
+
+export default withApollo(Login);
+
+//const options = ({ props }) => ({ variables: { email: this.state.email, password: this.state.password } });
+//export default connect(mapStateToProps, { submitLogin })(Login);
+//export default graphql(validateTravelerLogin)(Login);
 //export default Login;
 
