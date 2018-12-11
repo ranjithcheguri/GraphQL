@@ -4,6 +4,13 @@ import axios from 'axios';
 import Footer from './Footer';
 import { IP_backEnd, IP_NODE_PORT } from '../config/config';
 
+
+/* GRAPHQL IMPORTS BEGIN */
+import { graphql, compose } from 'react-apollo';
+import { withApollo } from 'react-apollo';
+import { addNewOwner } from '../mutations/OwnerSignUp';
+/* GRAPHQL IMPORTS END */
+
 class OwnerSignUp extends Component {
     constructor(props) {
         super(props);
@@ -22,19 +29,28 @@ class OwnerSignUp extends Component {
         console.log(this.state);
         const data = this.state;
 
-        axios.defaults.withCredentials = true;
-        axios.post(IP_backEnd + IP_NODE_PORT + '/ownerSignUp', data)
-            .then(response => {
-                if (response.status === 200) {
-                    alert("sign up successfull !");
-                    console.log("sign up successful, data inserted");
-                    this.props.history.push('/OwnerLogin');
-                }
-            })
-            .catch((error) => {
-                alert("Email already exists");
-                console.log("Response status : ", error.response.status, "Response : ", error.response.data);
-            })
+        this.props.client.mutate({
+            mutation: addNewOwner,
+            variables: {
+                ...data
+            }
+        }).then((response) => {
+            console.log(response);
+        });
+
+        // axios.defaults.withCredentials = true;
+        // axios.post(IP_backEnd + IP_NODE_PORT + '/ownerSignUp', data)
+        //     .then(response => {
+        //         if (response.status === 200) {
+        //             alert("sign up successfull !");
+        //             console.log("sign up successful, data inserted");
+        //             this.props.history.push('/OwnerLogin');
+        //         }
+        //     })
+        //     .catch((error) => {
+        //         alert("Email already exists");
+        //         console.log("Response status : ", error.response.status, "Response : ", error.response.data);
+        //     })
     }
 
     handleChange = (e) => {
@@ -91,6 +107,6 @@ class OwnerSignUp extends Component {
     }
 
 }
-
-export default OwnerSignUp;
+export default withApollo(OwnerSignUp);
+//export default OwnerSignUp;
 

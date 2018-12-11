@@ -13,14 +13,4 @@ const validateTravelerLogin = gql`
     }
 }`
 
-// const validateTravelerLogin = gql`{
-//     travelersList
-//     {
-//         firstName,
-//         lastName,
-//         email,
-//         password,
-//     }
-// }`
-
 export { validateTravelerLogin };

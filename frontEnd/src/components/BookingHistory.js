@@ -4,6 +4,12 @@ import { Redirect } from 'react-router-dom';
 import { IP_NODE_PORT, IP_backEnd } from '../config/config.js'
 import { connect } from 'react-redux';
 
+/* GRAPHQL IMPORTS BEGIN */
+import { graphql, compose } from 'react-apollo';
+import { withApollo } from 'react-apollo';
+import { viewBookings } from '../queries/viewBooking';
+/* GRAPHQL IMPORTS END */
+
 class BookingHistory extends Component {
 
     constructor(props) {
@@ -20,6 +26,21 @@ class BookingHistory extends Component {
         const data = {
             username: this.state.username,
         }
+
+        // const data1 = {
+        //     bookedUser: "ranjith.cheguri@gmail.com",
+        // }
+
+        //  console.log(this.props);
+        // this.props.client.query({
+        //     query: viewBookings,
+        //     variables: {
+        //         ...data1
+        //     }
+        // }).then((response) => {
+        //     console.log(response);
+        // });
+
         await axios.post(IP_backEnd + IP_NODE_PORT + '/bookingHistory/', data)
             .then(response => {
                 if (response.data.length > 0) {
@@ -108,6 +129,8 @@ class BookingHistory extends Component {
     }
 }
 
+export default withApollo(BookingHistory);
+
 //subscribe to Redux store updates.
 const mapStateToProps = (state) => ({
     // variables below are subscribed to changes in loginState variables (redirectVar,Response) and can be used with props.
@@ -115,4 +138,4 @@ const mapStateToProps = (state) => ({
     Ownercookie: state.ownerLoginState.Ownercookie
 })
 
-export default connect(mapStateToProps, {})(BookingHistory);
+//export default connect(mapStateToProps, {})(BookingHistory);

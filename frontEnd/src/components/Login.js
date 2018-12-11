@@ -43,28 +43,28 @@ class Login extends Component {
         e.preventDefault();
         // axios.defaults.withCredentials = true;
 
-        console.log(this.props);
-        this.props.client.query({
-            query: validateTravelerLogin,
-            variables: {
-                email: this.state.email,
-                password: this.state.password
-            }
-        }).then((response) => {
-            console.log(response);
-        });
-        setTimeout(()=>{console.log(this.props)},2000);
+        // console.log(this.props);
+        // this.props.client.query({
+        //     query: validateTravelerLogin,
+        //     variables: {
+        //         email: this.state.email,
+        //         password: this.state.password
+        //     }
+        // }).then((response) => {
+        //     console.log(response);
+        // });
+        // setTimeout(()=>{console.log(this.props)},2000);
 
-        // let { email, password } = this.state;
-        // const data = {
-        //     email: email,
-        //     password: password
-        // }
-        // this.props.submitLogin(email, password);
-        // setTimeout(() => {
-        //     if (this.props.response === 400) alert('Invalid username/password');
-        // }, 500);
-        // this.renderRedirect();
+        let { email, password } = this.state;
+        const data = {
+            email: email,
+            password: password
+        }
+        this.props.submitLogin(email, password);
+        setTimeout(() => {
+            if (this.props.response === 400) alert('Invalid username/password');
+        }, 500);
+        this.renderRedirect();
     }
 
     handleChange = (e) => {
@@ -148,10 +148,10 @@ const mapStateToProps = (state) => ({
 })
 
 
-export default withApollo(Login);
+//export default withApollo(Login);
 
 //const options = ({ props }) => ({ variables: { email: this.state.email, password: this.state.password } });
-//export default connect(mapStateToProps, { submitLogin })(Login);
+export default connect(mapStateToProps, { submitLogin })(Login);
 //export default graphql(validateTravelerLogin)(Login);
 //export default Login;
 

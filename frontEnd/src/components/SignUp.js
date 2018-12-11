@@ -7,7 +7,7 @@ import { IP_backEnd, IP_NODE_PORT } from '../config/config';
 /* GRAPHQL IMPORTS BEGIN */
 import { graphql, compose } from 'react-apollo';
 import { withApollo } from 'react-apollo';
-import { addNewTraveler } from '../queries/TravelerSignUp';
+import { addNewTraveler } from '../mutations/TravelerSignUp';
 /* GRAPHQL IMPORTS END */
 
 class SignUp extends Component {
@@ -27,30 +27,30 @@ class SignUp extends Component {
         e.preventDefault();
         console.log(this.state);
         const data = this.state;
-        console.log(this.props);  
-        
-        this.props.client.mutate({
-            mutation: addNewTraveler,
-            variables: {
-                ...data
-            }
-        }).then((response) => {
-            console.log(response);
-        });
+        console.log(this.props);
 
-        // axios.defaults.withCredentials = true;
-        // axios.post(IP_backEnd + IP_NODE_PORT + '/travelerSignup', data)
-        //     .then(response => {
-        //         if (response.status === 200) {
-        //             alert("sign up successfull !");
-        //             console.log("sign up successful, data inserted");
-        //             this.props.history.push('/Login');
-        //         }
-        //     })
-        //     .catch((error) => {
-        //         alert("Email already exists");
-        //         console.log("Response status : ", error.response.status, "Response : ", error.response.data);
-        //     })
+        // this.props.client.mutate({
+        //     mutation: addNewTraveler,
+        //     variables: {
+        //         ...data
+        //     }
+        // }).then((response) => {
+        //     console.log(response);
+        // });
+
+        axios.defaults.withCredentials = true;
+        axios.post(IP_backEnd + IP_NODE_PORT + '/travelerSignup', data)
+            .then(response => {
+                if (response.status === 200) {
+                    alert("sign up successfull !");
+                    console.log("sign up successful, data inserted");
+                    this.props.history.push('/Login');
+                }
+            })
+            .catch((error) => {
+                alert("Email already exists");
+                console.log("Response status : ", error.response.status, "Response : ", error.response.data);
+            })
     }
 
     handleChange = (e) => {
@@ -108,6 +108,6 @@ class SignUp extends Component {
 
 }
 
-export default withApollo(SignUp);
-//export default SignUp;
+//export default withApollo(SignUp);
+export default SignUp;
 

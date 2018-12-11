@@ -10,6 +10,12 @@ import { ownerSubmitLogin } from '../actions/ownerLoginActions';
 import { stat } from 'fs';
 /* REDUX IMPORTS END */
 
+/* GRAPHQL IMPORTS BEGIN */
+import { graphql, compose } from 'react-apollo';
+import { withApollo } from 'react-apollo';
+import { validateOwnerLogin } from '../queries/OwnerLogin';
+/* GRAPHQL IMPORTS END */
+
 
 class OwnerLogin extends Component {
     constructor(props) {
@@ -37,11 +43,23 @@ class OwnerLogin extends Component {
             email: email,
             password: password
         }
-        this.props.ownerSubmitLogin(email, password);
-        setTimeout(() => {
-            if (this.props.response === 400) alert('Invalid username/password');
-        }, 100);
-        await this.renderRedirect();
+
+        console.log(this.props);
+        this.props.client.query({
+            query: validateOwnerLogin,
+            variables: {
+                email: this.state.email,
+                password: this.state.password
+            }
+        }).then((response) => {
+            console.log(response);
+        });
+
+        // this.props.ownerSubmitLogin(email, password);
+        // setTimeout(() => {
+        //     if (this.props.response === 400) alert('Invalid username/password');
+        // }, 100);
+        // await this.renderRedirect();
 
         // console.log("Owner Login Request Submitted");
         // axios.defaults.withCredentials = true;
@@ -122,6 +140,7 @@ const mapStateToProps = (state) => ({
     response: state.ownerLoginState.response
 })
 
-export default connect(mapStateToProps, { ownerSubmitLogin })(OwnerLogin);
+export default withApollo(OwnerLogin);
+//export default connect(mapStateToProps, { ownerSubmitLogin })(OwnerLogin);
 //export default OwnerLogin;
 

@@ -97,8 +97,9 @@ const Query = new GraphQLObjectType({
                 password: { type: GraphQLString }
             },
             async resolve(parent, args) {
-               await traveler1.findOne({ email: args.email }, function (err, res) {
-                    if (res.password == args.password) {
+                console.log(args);
+                await traveler1.findOne({ email: args.email }, function (err, res) {
+                    if (bcrypt.compareSync(args.password, res.password)) {
                         res.status = 200;
                         loginResult = res;
                     } else {
@@ -122,8 +123,18 @@ const Query = new GraphQLObjectType({
                 password: { type: GraphQLString }
 
             },
-            resolve(parent, args) {
-                //
+            async resolve(parent, args) {
+                console.log(args);
+                await owner1.findOne({ email: args.email }, function (err, res) {
+                    if (bcrypt.compareSync(args.password, res.password)) {
+                        res.status = 200;
+                        loginResult = res;
+                    } else {
+                        res.status = 400;
+                        loginResult = res;
+                    }
+                })
+                return loginResult;
             }
         },
         ownersList: {
@@ -136,7 +147,7 @@ const Query = new GraphQLObjectType({
             type: ProfileType,
             args: { email: { type: GraphQLString } },
             resolve(parent, args) {
-                //
+                return profile1.findOne({email:args})
             }
         },
         property: {
@@ -173,6 +184,10 @@ const Query = new GraphQLObjectType({
     }
 })
 
+var addTravelerResult;
+var addOwnerResult;
+var addUpdateProfileResult;
+
 const Mutation = new GraphQLObjectType({
     name: 'Mutation', //used in exports
     fields: {
@@ -184,7 +199,7 @@ const Mutation = new GraphQLObjectType({
                 email: { type: GraphQLString },
                 password: { type: GraphQLString }
             },
-            resolve(parent, args) {
+            async resolve(parent, args) {
                 //new traveler creation with imported travelerschema.
                 var salt = bcrypt.genSaltSync(10);
                 var hash = bcrypt.hashSync(args.password, salt);
@@ -194,7 +209,17 @@ const Mutation = new GraphQLObjectType({
                     email: args.email,
                     password: hash
                 })
-                return traveler.save(); //after saving to db we want to return saved details instead of null so return is used.
+                await traveler.save().then((res)=> {
+                    if (res) {
+                        res.status = 200;
+                        addTravelerResult = res;
+                    } else {
+                        res.status = 400;
+                        addTravelerResult = res;
+                    }
+                })
+                return addTravelerResult;
+
             }
         },
         addOwner: {
@@ -205,7 +230,7 @@ const Mutation = new GraphQLObjectType({
                 email: { type: GraphQLString },
                 password: { type: GraphQLString }
             },
-            resolve(parent, args) {
+            async resolve(parent, args) {
                 //new traveler creation with imported travelerschema.
                 var salt = bcrypt.genSaltSync(10);
                 var hash = bcrypt.hashSync(args.password, salt);
@@ -215,7 +240,16 @@ const Mutation = new GraphQLObjectType({
                     email: args.email,
                     password: hash
                 })
-                return owner.save(); //after saving to db we want to return saved details instead of null so return is used.
+                await owner.save().then((res)=> {
+                    if (res) {
+                        res.status = 200;
+                        addOwnerResult = res;
+                    } else {
+                        res.status = 400;
+                        addOwnerResult = res;
+                    }
+                })
+                return addOwnerResult;
             }
         },
         addProfile: {
@@ -237,12 +271,16 @@ const Mutation = new GraphQLObjectType({
                 //directly use ...args, it will update only received arguments.
                 profile1.updateOne({ email: args.email }, { $set: { ...args } }, { upsert: true }, (err, result) => {
                     if (err) {
+                        result.status=400;
+                        addUpdateProfileResult = result;
                         console.log("Something wrong when updating data!");
+                    }else{
+                        result.status=200;
+                        addUpdateProfileResult = result
                     }
                     console.log(result);
-                    return result;
                 });
-                return args;
+                return addUpdateProfileResult;
             }
         },
         addProperty: {
@@ -281,8 +319,26 @@ const Mutation = new GraphQLObjectType({
                 });
                 return args;
             }
-
-        }
+        },
+        makeBooking: {
+            type: PropertyType,
+            args: {
+                startdate: { type: GraphQLString },
+                enddate: { type: GraphQLString },
+                ownername: { type: GraphQLString },
+                bookedUser: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                property1.updateOne({ ownername: args.ownername }, { $set: { ...args } }, { upsert: true }, (err, result) => {
+                    if (err) {
+                        console.log("Something wrong when updating data!");
+                    }
+                    console.log(result);
+                    return result;
+                });
+                return args;
+            }
+        },
     }
 })
 

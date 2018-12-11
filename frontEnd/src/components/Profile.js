@@ -6,6 +6,12 @@ import Footer2 from './Footer2';
 import { IP_backEnd, IP_NODE_PORT } from '../config/config';
 import { connect } from 'react-redux';
 
+/* GRAPHQL IMPORTS BEGIN */
+import { graphql, compose } from 'react-apollo';
+import { withApollo } from 'react-apollo';
+import { addUpdateProfile } from '../mutations/addUpdateProfile';
+/* GRAPHQL IMPORTS END */
+
 class Profile extends Component {
     constructor(props) {
         super(props);
@@ -46,17 +52,28 @@ class Profile extends Component {
         const data = {
             ...this.state
         }
-        console.log(data);
 
-        axios.post(IP_backEnd + IP_NODE_PORT + '/profile', data)
-            .then((response) => {
-                if (response.status === 200) {
-                    console.log("Profile updated successfully!");
-                    this.props.history.push('/ViewProfile');
-                } else {
-                    console.log("Pofile not updated");
-                }
-            })
+         console.log(this.props);
+        this.props.client.mutate({
+            mutation: addUpdateProfile,
+            variables: {
+               ...data
+            }
+        }).then((response) => {
+            console.log(response);
+        });
+
+        //console.log(data);
+
+        // axios.post(IP_backEnd + IP_NODE_PORT + '/profile', data)
+        //     .then((response) => {
+        //         if (response.status === 200) {
+        //             console.log("Profile updated successfully!");
+        //             this.props.history.push('/ViewProfile');
+        //         } else {
+        //             console.log("Pofile not updated");
+        //         }
+        //     })
     }
 
     render() {
@@ -165,5 +182,5 @@ const mapStateToProps = (state) => ({
     Travelercookie: state.loginState.Travelercookie,
     Ownercookie: state.ownerLoginState.Ownercookie
 })
-
-export default connect(mapStateToProps, {})(Profile);
+export default withApollo(Profile);
+//export default connect(mapStateToProps, {})(Profile);
